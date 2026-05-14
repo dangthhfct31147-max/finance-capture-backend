@@ -1,0 +1,11 @@
+.gradle
+build
+src/test
+.git
+.env
+.env.*
+!.env.example
+gradle
+gradlew
+gradlew.bat
+*.md
