@@ -1,6 +1,7 @@
 package com.moment.api.routes
 
 import com.moment.api.db.ApiResponse
+import com.moment.api.db.ClerkUserData
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -24,17 +25,9 @@ data class VerifyTokenRequest(
 fun Routing.authRoutes() {
     post("/auth/verify") {
         val body = call.receive<VerifyTokenRequest>()
-        val jwt = verifyClerkToken(body.token)
-        if (jwt == null) {
-            call.respond(HttpStatusCode.Unauthorized, ApiResponse(
-                success = false,
-                error = "Invalid token"
-            ))
-            return@post
-        }
         val user = extractUserFromToken(body.token)
         if (user == null) {
-            call.respond(HttpStatusCode.Unauthorized, ApiResponse(
+            call.respond(HttpStatusCode.Unauthorized, ApiResponse<Unit>(
                 success = false,
                 error = "Invalid token"
             ))

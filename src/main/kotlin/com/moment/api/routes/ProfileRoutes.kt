@@ -4,6 +4,7 @@ import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.UrlJwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.moment.api.auth.AuthConfig
 import com.moment.api.db.ApiResponse
 import com.moment.api.db.ClerkUserData
@@ -37,8 +38,8 @@ suspend fun verifyClerkToken(token: String): DecodedJWT? {
         val jwkProvider = UrlJwkProvider("https://$domain/.well-known/jwks.json")
         val jwt = JWT.decode(token)
         val jwk = jwkProvider.get(jwt.keyId)
-        val algorithm = com.auth0.jwt.algorithm.Algorithm.RSA256(jwk.publicKey as RSAPublicKey)
-        JWT.require(algorithm)
+        val algo = Algorithm.RSA256(jwk.publicKey as RSAPublicKey)
+        JWT.require(algo)
             .withIssuer("https://$domain/")
             .withAudience(publishableKey)
             .build()
@@ -62,13 +63,13 @@ suspend fun extractUserFromToken(token: String): ClerkUserData? {
 fun Routing.profileRoutes() {
     get("/api/profile") {
         val authHeader = call.request.header(HttpHeaders.Authorization)
-            ?: return@get call.respond(HttpStatusCode.Unauthorized, ApiResponse(
+            ?: return@get call.respond(HttpStatusCode.Unauthorized, ApiResponse<Unit>(
                 success = false, error = "Missing Authorization header"
             ))
 
         val token = authHeader.removePrefix("Bearer ").trim()
         val user = extractUserFromToken(token)
-            ?: return@get call.respond(HttpStatusCode.Unauthorized, ApiResponse(
+            ?: return@get call.respond(HttpStatusCode.Unauthorized, ApiResponse<Unit>(
                 success = false, error = "Invalid token"
             ))
 
@@ -86,13 +87,13 @@ fun Routing.profileRoutes() {
 
     put("/api/profile") {
         val authHeader = call.request.header(HttpHeaders.Authorization)
-            ?: return@put call.respond(HttpStatusCode.Unauthorized, ApiResponse(
+            ?: return@put call.respond(HttpStatusCode.Unauthorized, ApiResponse<Unit>(
                 success = false, error = "Missing Authorization header"
             ))
 
         val token = authHeader.removePrefix("Bearer ").trim()
         val user = extractUserFromToken(token)
-            ?: return@put call.respond(HttpStatusCode.Unauthorized, ApiResponse(
+            ?: return@put call.respond(HttpStatusCode.Unauthorized, ApiResponse<Unit>(
                 success = false, error = "Invalid token"
             ))
 
