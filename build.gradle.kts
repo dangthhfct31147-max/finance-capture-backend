@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.serialization") version "2.0.21"
     id("io.ktor.plugin") version "3.0.2"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.moment"
@@ -39,6 +38,6 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "21"
+kotlin {
+    jvmToolchain(21)
 }
