@@ -1,9 +1,8 @@
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM gradle:8.10-jdk21-alpine AS builder
 
 WORKDIR /app
 COPY . .
-RUN chmod +x gradlew
-RUN ./gradlew shadowJar --no-daemon
+RUN gradle shadowJar --no-daemon -x test
 
 FROM eclipse-temurin:21-jre-alpine
 

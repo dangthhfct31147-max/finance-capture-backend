@@ -5,7 +5,4 @@ src/test
 .env
 .env.*
 !.env.example
-gradle
-gradlew
-gradlew.bat
 *.md
