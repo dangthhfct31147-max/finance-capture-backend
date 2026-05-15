@@ -28,7 +28,7 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.postgresql:postgresql:42.7.3")
+    implementation("org.postgresql:postgresql:42.7.3")
     implementation("io.github.jan-tennert.supabase:postgrest-kt:3.0.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
