@@ -40,3 +40,7 @@ dependencies {
 kotlin {
     jvmToolchain(21)
 }
+
+application {
+    mainClass.set("com.moment.api.MainKt")
+}
