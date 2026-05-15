@@ -1,7 +1,5 @@
 package com.moment.api.routes
 
-import com.moment.api.auth.AuthConfig
-import com.moment.api.auth.ClerkJwtConfig
 import com.moment.api.db.ApiResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -26,13 +24,7 @@ data class VerifyTokenRequest(
 fun Routing.authRoutes() {
     post("/auth/verify") {
         val body = call.receive<VerifyTokenRequest>()
-        val config = ClerkJwtConfig(
-            publishableKey = System.getenv("CLERK_PUBLISHABLE_KEY")
-                ?: AuthConfig.PUBLISHABLE_KEY,
-            secretKey = System.getenv("CLERK_SECRET_KEY")
-                ?: AuthConfig.SECRET_KEY,
-        )
-        val jwt = config.verifyToken(body.token)
+        val jwt = verifyClerkToken(body.token)
         if (jwt == null) {
             call.respond(HttpStatusCode.Unauthorized, ApiResponse(
                 success = false,
@@ -40,7 +32,14 @@ fun Routing.authRoutes() {
             ))
             return@post
         }
-        val user = config.extractUser(jwt)
+        val user = extractUserFromToken(body.token)
+        if (user == null) {
+            call.respond(HttpStatusCode.Unauthorized, ApiResponse(
+                success = false,
+                error = "Invalid token"
+            ))
+            return@post
+        }
         call.respond(HttpStatusCode.OK, ApiResponse(
             success = true,
             data = AuthResponse(

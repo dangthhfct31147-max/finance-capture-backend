@@ -6,9 +6,9 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.moment.api.auth.AuthConfig
 import com.moment.api.db.ApiResponse
-import com.moment.api.db.SupabaseDb
-import com.moment.api.db.UpsertProfileRequest
 import com.moment.api.db.ClerkUserData
+import com.moment.api.db.UpsertProfileRequest
+import com.moment.api.db.SupabaseDb
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -16,7 +16,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.security.interfaces.RSAPublicKey
 
-private val supabaseDb by lazy {
+val supabaseDb: SupabaseDb by lazy {
     val host = System.getenv("DB_HOST") ?: "db.npipmuxxflbfaoeglyzz.supabase.co"
     val port = System.getenv("DB_PORT") ?: "5432"
     val db = System.getenv("DB_NAME") ?: "postgres"
@@ -50,7 +50,7 @@ suspend fun verifyClerkToken(token: String): DecodedJWT? {
 
 suspend fun extractUserFromToken(token: String): ClerkUserData? {
     val jwt = verifyClerkToken(token) ?: return null
-    ClerkUserData(
+    return ClerkUserData(
         id = jwt.subject ?: return null,
         email = jwt.getClaim("email").asString() ?: "",
         displayName = jwt.getClaim("name").asString(),
@@ -79,7 +79,7 @@ fun Routing.profileRoutes() {
                 success = true, data = newProfile
             ))
         }
-        call.respond(HttpStatusCode.OK, ApiResponse(
+        return@get call.respond(HttpStatusCode.OK, ApiResponse(
             success = true, data = profile
         ))
     }
@@ -99,7 +99,7 @@ fun Routing.profileRoutes() {
         val request = call.receive<UpsertProfileRequest>()
         val profile = supabaseDb.updateProfile(user.id, request)
             ?: supabaseDb.upsertProfile(user.id, user)
-        call.respond(HttpStatusCode.OK, ApiResponse(
+        return@put call.respond(HttpStatusCode.OK, ApiResponse(
             success = true, data = profile
         ))
     }

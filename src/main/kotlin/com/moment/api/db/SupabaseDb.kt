@@ -1,47 +1,9 @@
 package com.moment.api.db
 
-import io.postgresql.ds.PGSimpleDataSource
-import kotlinx.serialization.Serializable
+import org.postgresql.ds.PGSimpleDataSource
 import java.sql.Connection
 import java.sql.ResultSet
 import javax.sql.DataSource
-
-@Serializable
-data class Profile(
-    val id: String,
-    val username: String,
-    val displayName: String,
-    val avatarUrl: String? = null,
-    val coupleId: String? = null,
-    val partnerId: String? = null,
-    val isCoupleLeader: Boolean = false,
-    val createdAt: String,
-    val updatedAt: String,
-)
-
-@Serializable
-data class Couple(
-    val id: String,
-    val inviteCode: String,
-    val leaderId: String,
-    val partnerId: String? = null,
-    val name: String,
-    val createdAt: String,
-)
-
-@Serializable
-data class UpsertProfileRequest(
-    val username: String? = null,
-    val displayName: String? = null,
-    val avatarUrl: String? = null,
-)
-
-@Serializable
-data class ApiResponse<T>(
-    val success: Boolean,
-    val data: T? = null,
-    val error: String? = null,
-)
 
 class SupabaseDb(
     private val connectionString: String,
@@ -49,23 +11,13 @@ class SupabaseDb(
 ) {
     private val dataSource: DataSource by lazy {
         val ds = PGSimpleDataSource()
-        ds.setUrl(connectionString)
+        ds.setURL(connectionString)
         ds.user = "postgres"
         ds.password = serviceKey
         ds
     }
 
     fun getConnection(): Connection = dataSource.connection
-
-    private val json = Json { ignoreUnknownKeys = true }
-
-data class ClerkUserData(
-    val id: String,
-    val email: String,
-    val displayName: String?,
-    val imageUrl: String?,
-    val username: String?,
-)
 
     fun getProfileById(userId: String): Profile? {
         return getConnection().use { conn ->
@@ -87,7 +39,7 @@ data class ClerkUserData(
     fun upsertProfile(userId: String, clerkUser: ClerkUserData): Profile {
         val username = clerkUser.username
             ?: clerkUser.email.substringBefore("@").lowercase()
-            .replace(Regex("[^a-z0-9]"), "") + "_" + userId.take(6)
+                .replace(Regex("[^a-z0-9]"), "") + "_" + userId.take(6)
 
         val displayName = clerkUser.displayName ?: clerkUser.username ?: clerkUser.email.substringBefore("@")
 
