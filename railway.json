@@ -1,8 +1,9 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "Dockerfile"
+    "builder": "NIXPACKS",
+    "buildCommand": "gradle shadowJar --no-daemon -x test",
+    "runCommand": "java -jar build/libs/*.jar"
   },
   "deploy": {
     "numReplicas": 1,
